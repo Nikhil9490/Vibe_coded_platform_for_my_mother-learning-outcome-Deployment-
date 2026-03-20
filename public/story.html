@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Story - రోహిణి కథలు</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">
+      రోహిణి కథలు
+      <span class="site-title-telugu">Rohini's Telugu Stories</span>
+    </div>
+    <div class="header-ornament"></div>
+  </div>
+  <nav>
+    <a href="/">&#8592; అన్ని కథలు (All Stories)</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div id="content">
+    <div class="loading"><div class="spinner"></div><p>Loading...</p></div>
+  </div>
+</div>
+
+<footer>
+  <p>రోహిణి కథలు &copy; <span id="year"></span> · Written with love</p>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const params = new URLSearchParams(window.location.search);
+  const storyId = params.get('id');
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  async function load() {
+    if (!storyId) {
+      document.getElementById('content').innerHTML = '<p>Story not found.</p>';
+      return;
+    }
+    try {
+      const res = await fetch(`/api/stories/${storyId}/chapters`);
+      if (!res.ok) throw new Error('Not found');
+      const { story, chapters } = await res.json();
+
+      document.title = `${story.title} - రోహిణి కథలు`;
+
+      let chaptersHtml;
+      if (!chapters.length) {
+        chaptersHtml = `<div class="empty-state">
+          <div class="icon">✍️</div>
+          <h3>అధ్యాయాలు త్వరలో వస్తాయి</h3>
+          <p>Chapters coming soon...</p>
+        </div>`;
+      } else {
+        chaptersHtml = `
+          <h3 style="font-size:1rem;color:var(--text-muted);margin-bottom:1rem;font-weight:500;">
+            ${chapters.length} అధ్యాయ${chapters.length === 1 ? 'ము' : 'లు'}
+          </h3>
+          <ul class="chapters-list">
+            ${chapters.map(ch => `
+              <li class="chapter-item">
+                <a href="/chapter.html?story=${storyId}&ch=${ch.chapter_number}">
+                  <span class="chapter-num">అ. ${ch.chapter_number}</span>
+                  <span class="chapter-title">${ch.title ? escHtml(ch.title) : `అధ్యాయం ${ch.chapter_number}`}</span>
+                  <span class="chapter-date">${formatDate(ch.created_at)}</span>
+                  <span style="color:var(--text-muted);margin-left:0.5rem;">&#8250;</span>
+                </a>
+              </li>`).join('')}
+          </ul>`;
+      }
+
+      document.getElementById('content').innerHTML = `
+        <div class="story-header">
+          <h1>${escHtml(story.title)}</h1>
+          ${story.description ? `<p class="description">${escHtml(story.description)}</p>` : ''}
+        </div>
+        ${chaptersHtml}`;
+    } catch (e) {
+      document.getElementById('content').innerHTML =
+        '<div class="empty-state"><p>Could not load story. <a href="/">Back to home</a></p></div>';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>

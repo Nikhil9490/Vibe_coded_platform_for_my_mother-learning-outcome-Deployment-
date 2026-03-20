@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Story Form - Admin</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <h2>రోహిణి కథలు</h2>
+      <p>Story Management</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="/admin/story-form.html" class="active"><span class="nav-icon">➕</span> New Story</a>
+      <a href="/" target="_blank"><span class="nav-icon">🌐</span> View Website</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 id="page-title">New Story</h1>
+    </div>
+
+    <div class="admin-content">
+      <div id="alert"></div>
+
+      <div class="form-card">
+        <form id="story-form">
+          <div class="form-group">
+            <label for="title">
+              కథ పేరు (Story Title) <span style="color:#991B1B;">*</span>
+              <span class="hint"> — Write in Telugu</span>
+            </label>
+            <input type="text" id="title" name="title" required
+              placeholder="ఉదా: మా ఊరి కథ" style="font-family:'Noto Sans Telugu',sans-serif;font-size:1.05rem;">
+          </div>
+
+          <div class="form-group">
+            <label for="description">
+              కథ గురించి (Description)
+              <span class="hint"> — Brief summary in Telugu</span>
+            </label>
+            <textarea id="description" name="description" rows="4"
+              placeholder="కథ గురించి కొంచెం చెప్పండి..."
+              style="font-family:'Noto Sans Telugu',sans-serif;font-size:1rem;"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              Save Story
+            </button>
+            <a href="/admin/dashboard.html" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const token = localStorage.getItem('admin_token');
+  if (!token) window.location.href = '/admin/login.html';
+
+  function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = '/admin/login.html';
+  }
+
+  function authHeaders() {
+    return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+  }
+
+  function showAlert(msg, type = 'success') {
+    document.getElementById('alert').innerHTML =
+      `<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const storyId = params.get('id');
+
+  if (storyId) {
+    document.getElementById('page-title').textContent = 'Edit Story';
+    document.title = 'Edit Story - Admin';
+
+    fetch(`/api/stories/${storyId}`)
+      .then(r => r.json())
+      .then(story => {
+        document.getElementById('title').value = story.title || '';
+        document.getElementById('description').value = story.description || '';
+      })
+      .catch(() => showAlert('Failed to load story.', 'error'));
+  }
+
+  document.getElementById('story-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = 'Saving...';
+    btn.disabled = true;
+
+    const body = {
+      title: document.getElementById('title').value.trim(),
+      description: document.getElementById('description').value.trim() || null,
+    };
+
+    try {
+      const url = storyId ? `/api/stories/${storyId}` : '/api/stories';
+      const method = storyId ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 403) { logout(); return; }
+        throw new Error(data.error || 'Failed to save');
+      }
+
+      if (storyId) {
+        showAlert('Story updated successfully!');
+      } else {
+        showAlert(`Story created! <a href="/admin/chapters.html?story=${data.id}" style="color:#065F46;font-weight:600;">Add chapters →</a>`);
+        document.getElementById('story-form').reset();
+      }
+    } catch (err) {
+      showAlert(err.message, 'error');
+    } finally {
+      btn.textContent = 'Save Story';
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

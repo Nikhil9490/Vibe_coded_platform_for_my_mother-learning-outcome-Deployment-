@@ -1,0 +1,422 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #8B1A1A;
+  --primary-light: #a82020;
+  --accent: #C9920A;
+  --bg: #FFF8F0;
+  --bg-card: #FFFAF5;
+  --border: #E8D5B7;
+  --text: #2C1810;
+  --text-muted: #7A5C4A;
+  --shadow: 0 2px 12px rgba(139, 26, 26, 0.08);
+  --shadow-hover: 0 6px 24px rgba(139, 26, 26, 0.15);
+}
+
+html { scroll-behavior: smooth; }
+
+/* Disable text selection on chapter content */
+.chapter-content {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body {
+  font-family: 'Noto Sans Telugu', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.8;
+}
+
+/* ---- HEADER ---- */
+header {
+  background: linear-gradient(135deg, #6B0F0F 0%, #8B1A1A 50%, #6B0F0F 100%);
+  color: #FFF8F0;
+  padding: 0;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+
+.header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 2rem;
+  text-align: center;
+}
+
+.site-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #FFF8F0;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.site-title-telugu {
+  font-family: 'Noto Sans Telugu', sans-serif;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 500;
+  color: #F5D78E;
+  display: block;
+  margin-top: 0.3rem;
+}
+
+.site-subtitle {
+  margin-top: 0.6rem;
+  color: #F5C8A8;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.header-ornament {
+  margin: 1rem auto 0;
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #C9920A, transparent);
+}
+
+nav {
+  background: rgba(0,0,0,0.2);
+  padding: 0.5rem 1.5rem;
+  text-align: center;
+}
+
+nav a {
+  color: #F5D78E;
+  text-decoration: none;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+
+nav a:hover { color: #fff; }
+
+/* ---- LAYOUT ---- */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ---- PAGE TITLE ---- */
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--primary);
+  margin-bottom: 0.3rem;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.section-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin: 2rem 0;
+}
+
+/* ---- STORY CARDS ---- */
+.stories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.story-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.story-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent);
+}
+
+.story-card-title {
+  font-family: 'Noto Sans Telugu', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary);
+  line-height: 1.4;
+}
+
+.story-card-desc {
+  margin-top: 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.story-card-meta {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 0.8rem;
+}
+
+.meta-badge {
+  background: #F5E6D3;
+  color: var(--primary);
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
+/* ---- CHAPTER LIST ---- */
+.story-header {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.story-header h1 {
+  font-family: 'Noto Sans Telugu', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: var(--primary);
+  line-height: 1.4;
+}
+
+.story-header .description {
+  margin-top: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.chapters-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.chapter-item a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.chapter-item a:hover {
+  border-color: var(--primary);
+  background: #FEF5EC;
+  transform: translateX(4px);
+}
+
+.chapter-num {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: #F5E6D3;
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chapter-title {
+  font-family: 'Noto Sans Telugu', sans-serif;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.chapter-date {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---- READING VIEW ---- */
+.reading-header {
+  margin-bottom: 2rem;
+}
+
+.reading-header .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.reading-header .back-link:hover { text-decoration: underline; }
+
+.reading-header .story-name {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4rem;
+}
+
+.reading-header h1 {
+  font-family: 'Noto Sans Telugu', sans-serif;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  color: var(--primary);
+  line-height: 1.4;
+}
+
+.reading-header .chapter-info {
+  margin-top: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.chapter-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow);
+  font-family: 'Noto Sans Telugu', sans-serif;
+  font-size: 1.15rem;
+  line-height: 2.2;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.chapter-nav a, .chapter-nav span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-nav {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--primary);
+}
+
+.btn-nav:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.btn-nav-disabled {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* ---- EMPTY STATE ---- */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+
+.empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ---- LOADING ---- */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- FOOTER ---- */
+footer {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 4rem;
+}
+
+/* ---- BREADCRUMB ---- */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb .sep { color: var(--border); }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  .chapter-content { padding: 1.5rem; font-size: 1.05rem; }
+  .story-header { padding: 1.2rem; }
+  .chapter-nav { flex-direction: column; }
+  .chapter-nav a, .chapter-nav span { width: 100%; justify-content: center; }
+  .chapter-date { display: none; }
+}

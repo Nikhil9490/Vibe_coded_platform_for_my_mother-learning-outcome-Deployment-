@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapters - Admin</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <h2>రోహిణి కథలు</h2>
+      <p>Story Management</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="/admin/story-form.html"><span class="nav-icon">➕</span> New Story</a>
+      <a href="/" target="_blank"><span class="nav-icon">🌐</span> View Website</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 id="page-title">Chapters</h1>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="/admin/dashboard.html" class="btn btn-secondary btn-sm">← Back</a>
+        <a id="add-chapter-btn" href="#" class="btn btn-primary btn-sm">+ Add Chapter</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <div id="alert"></div>
+
+      <!-- Add / Edit Chapter Form -->
+      <div class="form-card" id="chapter-form-card" style="margin-bottom:2rem;display:none;">
+        <h3 id="form-card-title" style="margin-bottom:1.2rem;color:#2C1810;">New Chapter</h3>
+        <form id="chapter-form">
+          <input type="hidden" id="chapter-id">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label for="chapter-number">Chapter Number</label>
+              <input type="number" id="chapter-number" min="1" placeholder="Auto">
+            </div>
+            <div class="form-group">
+              <label for="chapter-title">
+                అధ్యాయం పేరు (Title)
+                <span class="hint"> — optional</span>
+              </label>
+              <input type="text" id="chapter-title"
+                placeholder="ఉదా: మొదటి రోజు"
+                style="font-family:'Noto Sans Telugu',sans-serif;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="chapter-content">
+              కంటెంట్ (Content) <span style="color:#991B1B;">*</span>
+              <span class="hint"> — Paste Telugu text here</span>
+            </label>
+            <textarea id="chapter-content" class="telugu-input" required
+              placeholder="ఇక్కడ కథ రాయండి..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="chapter-submit-btn">Save Chapter</button>
+            <button type="button" class="btn btn-secondary" onclick="hideForm()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Chapters Table -->
+      <div class="admin-table-wrapper">
+        <div class="admin-table-header">
+          <h3 id="story-title-header">Chapters</h3>
+        </div>
+        <div id="chapters-table">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const token = localStorage.getItem('admin_token');
+  if (!token) window.location.href = '/admin/login.html';
+
+  const params = new URLSearchParams(window.location.search);
+  const storyId = params.get('story');
+  if (!storyId) window.location.href = '/admin/dashboard.html';
+
+  function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = '/admin/login.html';
+  }
+
+  function authHeaders() {
+    return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+  }
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatDate(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function showAlert(msg, type = 'success') {
+    const el = document.getElementById('alert');
+    el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+  }
+
+  function showForm(chapter = null) {
+    const card = document.getElementById('chapter-form-card');
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth' });
+
+    if (chapter) {
+      document.getElementById('form-card-title').textContent = 'Edit Chapter';
+      document.getElementById('chapter-submit-btn').textContent = 'Update Chapter';
+      document.getElementById('chapter-id').value = chapter.id;
+      document.getElementById('chapter-number').value = chapter.chapter_number;
+      document.getElementById('chapter-title').value = chapter.title || '';
+      document.getElementById('chapter-content').value = chapter.content;
+    } else {
+      document.getElementById('form-card-title').textContent = 'New Chapter';
+      document.getElementById('chapter-submit-btn').textContent = 'Save Chapter';
+      document.getElementById('chapter-id').value = '';
+      document.getElementById('chapter-number').value = '';
+      document.getElementById('chapter-title').value = '';
+      document.getElementById('chapter-content').value = '';
+    }
+  }
+
+  function hideForm() {
+    document.getElementById('chapter-form-card').style.display = 'none';
+    document.getElementById('chapter-form').reset();
+  }
+
+  document.getElementById('add-chapter-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    showForm();
+  });
+
+  document.getElementById('chapter-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('chapter-submit-btn');
+    btn.textContent = 'Saving...';
+    btn.disabled = true;
+
+    const chapterId = document.getElementById('chapter-id').value;
+    const body = {
+      chapter_number: document.getElementById('chapter-number').value || undefined,
+      title: document.getElementById('chapter-title').value.trim() || null,
+      content: document.getElementById('chapter-content').value.trim(),
+    };
+
+    try {
+      let res;
+      if (chapterId) {
+        res = await fetch(`/api/chapters/${chapterId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+      } else {
+        res = await fetch(`/api/stories/${storyId}/chapters`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 403) { logout(); return; }
+        throw new Error(data.error || 'Failed to save');
+      }
+
+      showAlert(chapterId ? 'Chapter updated!' : 'Chapter added!');
+      hideForm();
+      loadChapters();
+    } catch (err) {
+      showAlert(err.message, 'error');
+    } finally {
+      btn.textContent = chapterId ? 'Update Chapter' : 'Save Chapter';
+      btn.disabled = false;
+    }
+  });
+
+  async function editChapter(id) {
+    try {
+      const res = await fetch(`/api/chapters/${id}`, { headers: authHeaders() });
+      if (!res.ok) throw new Error();
+      const chapter = await res.json();
+      showForm(chapter);
+    } catch {
+      showAlert('Failed to load chapter.', 'error');
+    }
+  }
+
+  async function deleteChapter(id) {
+    if (!confirm('Delete this chapter? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/chapters/${id}`, { method: 'DELETE', headers: authHeaders() });
+      if (!res.ok) {
+        if (res.status === 403) { logout(); return; }
+        const d = await res.json();
+        alert(d.error || 'Failed to delete');
+        return;
+      }
+      showAlert('Chapter deleted.');
+      loadChapters();
+    } catch {
+      showAlert('Network error.', 'error');
+    }
+  }
+
+  async function loadChapters() {
+    try {
+      const res = await fetch(`/api/stories/${storyId}/chapters`);
+      if (!res.ok) throw new Error();
+      const { story, chapters } = await res.json();
+
+      document.title = `${story.title} - Chapters - Admin`;
+      document.getElementById('page-title').textContent = story.title;
+      document.getElementById('story-title-header').textContent =
+        `${chapters.length} Chapter${chapters.length !== 1 ? 's' : ''}`;
+
+      const el = document.getElementById('chapters-table');
+
+      if (!chapters.length) {
+        el.innerHTML = `<div style="padding:2rem;text-align:center;color:#7A5C4A;">
+          No chapters yet. Click "+ Add Chapter" to post the first one.
+        </div>`;
+        return;
+      }
+
+      el.innerHTML = `<table>
+        <thead><tr>
+          <th>#</th><th>Title</th><th>Posted</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${chapters.map(ch => `
+            <tr>
+              <td><span class="meta-badge">అ. ${ch.chapter_number}</span></td>
+              <td class="table-title">${ch.title ? escHtml(ch.title) : `అధ్యాయం ${ch.chapter_number}`}</td>
+              <td style="white-space:nowrap;">${formatDate(ch.created_at)}</td>
+              <td>
+                <div class="btn-actions">
+                  <a href="/chapter.html?story=${storyId}&ch=${ch.chapter_number}" target="_blank"
+                    class="btn btn-secondary btn-sm">View</a>
+                  <button onclick="editChapter(${ch.id})" class="btn btn-secondary btn-sm">Edit</button>
+                  <button onclick="deleteChapter(${ch.id})" class="btn btn-danger btn-sm">Delete</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+    } catch {
+      document.getElementById('chapters-table').innerHTML =
+        '<div style="padding:1.5rem;color:#991B1B;">Failed to load chapters.</div>';
+    }
+  }
+
+  loadChapters();
+</script>
+</body>
+</html>

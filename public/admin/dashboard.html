@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Admin</title>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <h2>రోహిణి కథలు</h2>
+      <p>Story Management</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard.html" class="active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/story-form.html">
+        <span class="nav-icon">➕</span> New Story
+      </a>
+      <a href="/" target="_blank">
+        <span class="nav-icon">🌐</span> View Website
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Dashboard</h1>
+      <a href="/admin/story-form.html" class="btn btn-primary btn-sm">+ New Story</a>
+    </div>
+
+    <div class="admin-content">
+      <div class="stat-cards" id="stat-cards">
+        <div class="stat-card"><div class="stat-num" id="stat-stories">—</div><div class="stat-label">Stories</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-chapters">—</div><div class="stat-label">Total Chapters</div></div>
+      </div>
+
+      <div class="admin-table-wrapper">
+        <div class="admin-table-header">
+          <h3>All Stories</h3>
+          <a href="/admin/story-form.html" class="btn btn-secondary btn-sm">+ Add Story</a>
+        </div>
+        <div id="stories-table">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const token = localStorage.getItem('admin_token');
+  if (!token) window.location.href = '/admin/login.html';
+
+  function logout() {
+    localStorage.removeItem('admin_token');
+    window.location.href = '/admin/login.html';
+  }
+
+  function authHeaders() {
+    return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+  }
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatDate(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  async function deleteStory(id, title) {
+    if (!confirm(`Delete "${title}" and all its chapters? This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/stories/${id}`, { method: 'DELETE', headers: authHeaders() });
+      if (!res.ok) {
+        const d = await res.json();
+        if (res.status === 403) { logout(); return; }
+        alert(d.error || 'Failed to delete');
+        return;
+      }
+      loadStories();
+    } catch (e) {
+      alert('Network error');
+    }
+  }
+
+  async function loadStories() {
+    try {
+      const res = await fetch('/api/stories');
+      if (!res.ok) throw new Error();
+      const stories = await res.json();
+
+      document.getElementById('stat-stories').textContent = stories.length;
+      const total = stories.reduce((a, s) => a + (s.chapter_count || 0), 0);
+      document.getElementById('stat-chapters').textContent = total;
+
+      const el = document.getElementById('stories-table');
+
+      if (!stories.length) {
+        el.innerHTML = `<div style="padding:2rem;text-align:center;color:#7A5C4A;">
+          No stories yet. <a href="/admin/story-form.html" style="color:#8B1A1A;">Add the first one →</a>
+        </div>`;
+        return;
+      }
+
+      el.innerHTML = `<table>
+        <thead><tr>
+          <th>Title</th>
+          <th>Chapters</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${stories.map(s => `
+            <tr>
+              <td>
+                <div class="table-title">${escHtml(s.title)}</div>
+                ${s.description ? `<div style="font-size:0.78rem;color:#7A5C4A;margin-top:0.2rem;">${escHtml(s.description.substring(0, 80))}${s.description.length > 80 ? '…' : ''}</div>` : ''}
+              </td>
+              <td><span class="meta-badge">${s.chapter_count || 0}</span></td>
+              <td style="white-space:nowrap;">${formatDate(s.created_at)}</td>
+              <td>
+                <div class="btn-actions">
+                  <a href="/admin/chapters.html?story=${s.id}" class="btn btn-secondary btn-sm">Chapters</a>
+                  <a href="/admin/story-form.html?id=${s.id}" class="btn btn-secondary btn-sm">Edit</a>
+                  <button onclick="deleteStory(${s.id}, '${escHtml(s.title).replace(/'/g,"\\'")}' )" class="btn btn-danger btn-sm">Delete</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+    } catch (e) {
+      document.getElementById('stories-table').innerHTML = '<div style="padding:1.5rem;color:#991B1B;">Failed to load stories.</div>';
+    }
+  }
+
+  loadStories();
+</script>
+</body>
+</html>

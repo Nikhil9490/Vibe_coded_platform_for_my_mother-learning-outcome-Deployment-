@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading - రోహిణి కథలు</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">
+      రోహిణి కథలు
+      <span class="site-title-telugu">Rohini's Telugu Stories</span>
+    </div>
+    <div class="header-ornament"></div>
+  </div>
+  <nav>
+    <a id="nav-back-story" href="/">&#8592; కథకు తిరిగి వెళ్ళు</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div id="content">
+    <div class="loading"><div class="spinner"></div><p>Loading chapter...</p></div>
+  </div>
+</div>
+
+<footer>
+  <p>రోహిణి కథలు &copy; <span id="year"></span> · Written with love</p>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const params = new URLSearchParams(window.location.search);
+  const storyId = params.get('story');
+  const chapterNum = params.get('ch');
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  async function load() {
+    if (!storyId || !chapterNum) {
+      document.getElementById('content').innerHTML = '<p>Chapter not found.</p>';
+      return;
+    }
+
+    const navBack = document.getElementById('nav-back-story');
+    navBack.href = `/story.html?id=${storyId}`;
+    navBack.textContent = '← కథకు తిరిగి వెళ్ళు';
+
+    try {
+      const res = await fetch(`/api/stories/${storyId}/chapters/${chapterNum}`);
+      if (!res.ok) throw new Error('Not found');
+      const { story, chapter, prev, next } = await res.json();
+
+      const chTitle = chapter.title || `అధ్యాయం ${chapter.chapter_number}`;
+      document.title = `${chTitle} - ${story.title} - రోహిణి కథలు`;
+
+      const prevHtml = prev !== null
+        ? `<a class="btn-nav" href="/chapter.html?story=${storyId}&ch=${prev}">&#8592; అ. ${prev}</a>`
+        : `<span class="btn-nav-disabled">&#8592; మొదటి అధ్యాయం</span>`;
+
+      const nextHtml = next !== null
+        ? `<a class="btn-nav" href="/chapter.html?story=${storyId}&ch=${next}">అ. ${next} &#8594;</a>`
+        : `<span class="btn-nav-disabled">చివరి అధ్యాయం &#8594;</span>`;
+
+      document.getElementById('content').innerHTML = `
+        <div class="breadcrumb">
+          <a href="/">కథలు</a>
+          <span class="sep">›</span>
+          <a href="/story.html?id=${storyId}">${escHtml(story.title)}</a>
+          <span class="sep">›</span>
+          <span>అధ్యాయం ${chapter.chapter_number}</span>
+        </div>
+
+        <div class="reading-header">
+          <div class="story-name">${escHtml(story.title)}</div>
+          <h1>${escHtml(chTitle)}</h1>
+          <div class="chapter-info">అధ్యాయం ${chapter.chapter_number} · ${formatDate(chapter.created_at)}</div>
+        </div>
+
+        <div class="chapter-content">${escHtml(chapter.content)}</div>
+
+        <div class="chapter-nav">
+          ${prevHtml}
+          <a href="/story.html?id=${storyId}" style="color:var(--text-muted);text-decoration:none;font-size:0.85rem;">
+            అన్ని అధ్యాయాలు
+          </a>
+          ${nextHtml}
+        </div>`;
+    } catch (e) {
+      document.getElementById('content').innerHTML =
+        '<div class="empty-state"><p>Chapter not found. <a href="/">Back to home</a></p></div>';
+    }
+  }
+
+  load();
+
+  // Disable copy/paste
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && ['c','a','u','s'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener('copy', e => e.preventDefault());
+</script>
+</body>
+</html>

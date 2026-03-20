@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>రోహిణి కథలు - Telugu Stories</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">
+      రోహిణి కథలు
+      <span class="site-title-telugu">Rohini's Telugu Stories</span>
+    </div>
+    <p class="site-subtitle">తెలుగు సాహిత్యం · Telugu Literature</p>
+    <div class="header-ornament"></div>
+  </div>
+  <nav>
+    <a href="/">కథలు (Stories)</a>
+    <a href="/admin/dashboard.html" style="float:right; opacity:0.6; font-size:0.8rem;">Admin</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2 class="page-title">అన్ని కథలు</h2>
+  <p class="page-subtitle" id="story-count">Loading stories...</p>
+
+  <div id="stories-container">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>రోహిణి కథలు &copy; <span id="year"></span> · Written with love</p>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  async function loadStories() {
+    try {
+      const res = await fetch('/api/stories');
+      const stories = await res.json();
+      const container = document.getElementById('stories-container');
+      const countEl = document.getElementById('story-count');
+
+      if (!stories.length) {
+        countEl.textContent = 'No stories yet.';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📖</div>
+            <h3>కథలు త్వరలో వస్తాయి</h3>
+            <p>Stories coming soon...</p>
+          </div>`;
+        return;
+      }
+
+      countEl.textContent = `${stories.length} ${stories.length === 1 ? 'story' : 'stories'} · Updated regularly`;
+
+      container.innerHTML = `<div class="stories-grid">${stories.map(s => `
+        <a class="story-card" href="/story.html?id=${s.id}">
+          <div class="story-card-title">${escHtml(s.title)}</div>
+          ${s.description ? `<div class="story-card-desc">${escHtml(s.description)}</div>` : ''}
+          <div class="story-card-meta">
+            <span class="meta-badge">${s.chapter_count || 0} అధ్యాయాలు</span>
+            <span>${s.last_updated ? formatDate(s.last_updated) : formatDate(s.created_at)}</span>
+          </div>
+        </a>`).join('')}
+      </div>`;
+    } catch (e) {
+      document.getElementById('stories-container').innerHTML =
+        '<div class="empty-state"><p>Could not load stories. Please try again.</p></div>';
+    }
+  }
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  loadStories();
+</script>
+</body>
+</html>
