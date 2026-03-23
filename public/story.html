@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Story - రోహిణి కథలు</title>
+  <title>Story - రేవతి రమతి కథలు</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -11,13 +11,14 @@
 <header>
   <div class="header-inner">
     <div class="site-title">
-      రోహిణి కథలు
-      <span class="site-title-telugu">Rohini's Telugu Stories</span>
+      రేవతి రమతి కథలు
+      <span class="site-title-telugu">Revati Ramati's Telugu Stories</span>
     </div>
     <div class="header-ornament"></div>
   </div>
   <nav>
     <a href="/">&#8592; అన్ని కథలు (All Stories)</a>
+    <span id="user-nav" style="float:right;"></span>
   </nav>
 </header>
 
@@ -28,7 +29,7 @@
 </div>
 
 <footer>
-  <p>రోహిణి కథలు &copy; <span id="year"></span> · Written with love</p>
+  <p>రేవతి రమతి కథలు &copy; <span id="year"></span> · Written with love</p>
 </footer>
 
 <script>
@@ -58,7 +59,7 @@
       if (!res.ok) throw new Error('Not found');
       const { story, chapters } = await res.json();
 
-      document.title = `${story.title} - రోహిణి కథలు`;
+      document.title = `${story.title} - రేవతి రమతి కథలు`;
 
       let chaptersHtml;
       if (!chapters.length) {
@@ -99,5 +100,6 @@
 
   load();
 </script>
+<script src="/js/user-auth.js"></script>
 </body>
 </html>

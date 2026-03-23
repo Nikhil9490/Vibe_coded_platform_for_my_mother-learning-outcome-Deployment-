@@ -13,6 +13,7 @@ async function start() {
   await init();
 
   app.use('/api/auth', require('./src/routes/auth')(db));
+  app.use('/api/users', require('./src/routes/users')(db));
   app.use('/api/stories', require('./src/routes/stories')(db));
   app.use('/api/chapters', require('./src/routes/chapters')(db));
 

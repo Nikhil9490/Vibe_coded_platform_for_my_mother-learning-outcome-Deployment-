@@ -27,11 +27,26 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Noto Sans Telugu', 'Segoe UI', sans-serif;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: url('/image.png');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
   line-height: 1.8;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 245, 230, 0.82);
+  z-index: 0;
+  pointer-events: none;
+}
+
+header, nav, .container, footer { position: relative; z-index: 1; }
 
 /* ---- HEADER ---- */
 header {
@@ -96,6 +111,16 @@ nav a {
 }
 
 nav a:hover { color: #fff; }
+
+#user-nav { display: inline-flex; align-items: center; gap: 0.5rem; }
+#user-nav a { padding: 0.3rem 0.8rem; }
+#user-nav .btn-register {
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+#user-nav .btn-register:hover { background: rgba(255,255,255,0.25); }
+#user-nav .user-greeting { color: #F5D78E; font-size: 0.88rem; opacity: 0.9; }
 
 /* ---- LAYOUT ---- */
 .container {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reading - రోహిణి కథలు</title>
+  <title>Reading - రేవతి రమతి కథలు</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -11,13 +11,14 @@
 <header>
   <div class="header-inner">
     <div class="site-title">
-      రోహిణి కథలు
-      <span class="site-title-telugu">Rohini's Telugu Stories</span>
+      రేవతి రమతి కథలు
+      <span class="site-title-telugu">Revati Ramati's Telugu Stories</span>
     </div>
     <div class="header-ornament"></div>
   </div>
   <nav>
     <a id="nav-back-story" href="/">&#8592; కథకు తిరిగి వెళ్ళు</a>
+    <span id="user-nav" style="float:right;"></span>
   </nav>
 </header>
 
@@ -28,7 +29,7 @@
 </div>
 
 <footer>
-  <p>రోహిణి కథలు &copy; <span id="year"></span> · Written with love</p>
+  <p>రేవతి రమతి కథలు &copy; <span id="year"></span> · Written with love</p>
 </footer>
 
 <script>
@@ -59,13 +60,35 @@
     navBack.href = `/story.html?id=${storyId}`;
     navBack.textContent = '← కథకు తిరిగి వెళ్ళు';
 
+    // Gate chapter 3+ behind login
+    if (parseInt(chapterNum) >= 3 && !localStorage.getItem('user_token')) {
+      document.getElementById('content').innerHTML = `
+        <div style="text-align:center;padding:3rem 1rem;max-width:480px;margin:0 auto;">
+          <div style="font-size:3rem;margin-bottom:1rem;">📖</div>
+          <h2 style="color:var(--primary);margin-bottom:0.5rem;">కొనసాగించడానికి లాగిన్ చేయండి</h2>
+          <p style="color:var(--text-muted);margin-bottom:0.3rem;">3వ అధ్యాయం నుండి చదవడానికి అకౌంట్ అవసరం.</p>
+          <p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.9rem;">Please log in or create a free account to continue reading from Chapter 3.</p>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <a href="/login.html?next=${encodeURIComponent(window.location.href)}"
+               style="background:var(--primary);color:#fff;padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;">
+              లాగిన్ (Login)
+            </a>
+            <a href="/register.html?next=${encodeURIComponent(window.location.href)}"
+               style="background:transparent;color:var(--primary);padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;border:2px solid var(--primary);">
+              నమోదు (Register)
+            </a>
+          </div>
+        </div>`;
+      return;
+    }
+
     try {
       const res = await fetch(`/api/stories/${storyId}/chapters/${chapterNum}`);
       if (!res.ok) throw new Error('Not found');
       const { story, chapter, prev, next } = await res.json();
 
       const chTitle = chapter.title || `అధ్యాయం ${chapter.chapter_number}`;
-      document.title = `${chTitle} - ${story.title} - రోహిణి కథలు`;
+      document.title = `${chTitle} - ${story.title} - రేవతి రమతి కథలు`;
 
       const prevHtml = prev !== null
         ? `<a class="btn-nav" href="/chapter.html?story=${storyId}&ch=${prev}">&#8592; అ. ${prev}</a>`
@@ -107,6 +130,10 @@
 
   load();
 
+  // Disable copy/paste
+</script>
+<script src="/js/user-auth.js"></script>
+<script>
   // Disable copy/paste
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('keydown', e => {

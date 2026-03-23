@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>లాగిన్ - రేవతి రమతి కథలు</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .auth-card {
+      max-width: 420px;
+      margin: 3rem auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 4px 20px rgba(139,26,26,0.08);
+    }
+    .auth-card h2 { color: var(--primary); margin-bottom: 0.3rem; font-size: 1.6rem; }
+    .auth-card p.sub { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .form-group input {
+      width: 100%; padding: 0.7rem 1rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: 1rem;
+      background: #fff; color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--primary); }
+    .btn-submit {
+      width: 100%; padding: 0.85rem;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 1.05rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover { background: var(--primary-light); }
+    .auth-link { text-align: center; margin-top: 1.2rem; font-size: 0.9rem; color: var(--text-muted); }
+    .auth-link a { color: var(--primary); font-weight: 600; }
+    .error-msg { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; border-radius: 8px; padding: 0.7rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">
+      <a href="/" style="text-decoration:none;color:inherit;">రేవతి రమతి కథలు</a>
+      <span class="site-title-telugu">Revati Ramati's Telugu Stories</span>
+    </div>
+    <div class="header-ornament"></div>
+  </div>
+  <nav>
+    <a href="/">← కథలు (Stories)</a>
+    <span id="user-nav" style="float:right;"></span>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="auth-card">
+    <h2>లాగిన్ చేయండి</h2>
+    <p class="sub">Welcome back! Sign in to continue reading.</p>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label>ఇమెయిల్ (Email)</label>
+        <input type="email" id="email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>పాస్వర్డ్ (Password)</label>
+        <input type="password" id="password" placeholder="Your password" required />
+      </div>
+      <button type="submit" class="btn-submit">లాగిన్ (Login)</button>
+    </form>
+
+    <div class="auth-link">
+      అకౌంట్ లేదా? <a href="/register.html">నమోదు చేసుకోండి</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>రేవతి రమతి కథలు &copy; <span id="year"></span> · Written with love</p>
+</footer>
+
+<script src="/js/user-auth.js"></script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errEl = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const res  = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+
+      localStorage.setItem('user_token', data.token);
+      localStorage.setItem('user_name', data.user.name);
+      const next = new URLSearchParams(window.location.search).get('next');
+      window.location.href = next || '/';
+    } catch {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
