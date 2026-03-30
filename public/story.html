@@ -86,10 +86,17 @@
           </ul>`;
       }
 
+      const bookmark = localStorage.getItem(`bookmark_story_${storyId}`);
+      const bookmarkHtml = bookmark ? `
+        <a href="/chapter.html?story=${storyId}&ch=${bookmark}" class="bookmark-resume">
+          🔖 అధ్యాయం ${bookmark} నుండి కొనసాగించు &nbsp;(Continue from Chapter ${bookmark})
+        </a>` : '';
+
       document.getElementById('content').innerHTML = `
         <div class="story-header">
           <h1>${escHtml(story.title)}</h1>
           ${story.description ? `<p class="description">${escHtml(story.description)}</p>` : ''}
+          ${bookmarkHtml}
         </div>
         ${chaptersHtml}`;
     } catch (e) {

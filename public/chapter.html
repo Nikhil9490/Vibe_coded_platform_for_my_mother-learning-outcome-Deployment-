@@ -8,6 +8,8 @@
 </head>
 <body>
 
+<div id="reading-progress"></div>
+
 <header>
   <div class="header-inner">
     <div class="site-title">
@@ -21,6 +23,18 @@
     <span id="user-nav" style="float:right;"></span>
   </nav>
 </header>
+
+<!-- Reader Toolbar -->
+<div class="reader-toolbar" id="reader-toolbar" style="display:none;">
+  <span style="font-size:0.78rem;color:var(--text-muted);margin-right:0.25rem;">అక్షర పరిమాణం</span>
+  <div class="toolbar-group">
+    <button class="toolbar-btn font-btn" data-size="sm" title="Small font">A-</button>
+    <button class="toolbar-btn font-btn active" data-size="md" title="Medium font">A</button>
+    <button class="toolbar-btn font-btn" data-size="lg" title="Large font">A+</button>
+  </div>
+  <button class="toolbar-icon-btn" id="theme-btn" title="Dark mode">🌙</button>
+  <button class="toolbar-icon-btn" id="bookmark-btn" title="Bookmark this chapter">🔖</button>
+</div>
 
 <div class="container">
   <div id="content">
@@ -37,7 +51,70 @@
 
   const params = new URLSearchParams(window.location.search);
   const storyId = params.get('story');
-  const chapterNum = params.get('ch');
+  const chapterNum = parseInt(params.get('ch'));
+
+  // ---- READING PROGRESS ----
+  const progressBar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    progressBar.style.width = (scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0) + '%';
+  }, { passive: true });
+
+  // ---- FONT SIZE ----
+  const FONT_SIZES = ['sm', 'md', 'lg'];
+  let currentSize = localStorage.getItem('reader_font_size') || 'md';
+
+  function applyFontSize(size) {
+    FONT_SIZES.forEach(s => document.body.classList.remove('font-' + s));
+    document.body.classList.add('font-' + size);
+    currentSize = size;
+    localStorage.setItem('reader_font_size', size);
+    document.querySelectorAll('.font-btn').forEach(btn =>
+      btn.classList.toggle('active', btn.dataset.size === size));
+  }
+
+  document.querySelectorAll('.font-btn').forEach(btn =>
+    btn.addEventListener('click', () => applyFontSize(btn.dataset.size)));
+
+  // ---- DARK MODE ----
+  let isDark = localStorage.getItem('reader_theme') === 'dark';
+
+  function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    isDark = dark;
+    localStorage.setItem('reader_theme', dark ? 'dark' : 'light');
+    const btn = document.getElementById('theme-btn');
+    btn.textContent = dark ? '☀️' : '🌙';
+    btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+    btn.classList.toggle('active', dark);
+  }
+
+  document.getElementById('theme-btn').addEventListener('click', () => applyTheme(!isDark));
+
+  // ---- BOOKMARK ----
+  const BOOKMARK_KEY = `bookmark_story_${storyId}`;
+
+  function saveBookmark() {
+    localStorage.setItem(BOOKMARK_KEY, chapterNum);
+    const btn = document.getElementById('bookmark-btn');
+    btn.classList.add('active');
+    btn.title = 'Bookmarked!';
+  }
+
+  document.getElementById('bookmark-btn').addEventListener('click', saveBookmark);
+
+  // Apply saved preferences immediately
+  applyFontSize(currentSize);
+  applyTheme(isDark);
+
+  // ---- READING TIME ----
+  function readingTime(text) {
+    const words = text.trim().split(/\s+/).length;
+    const mins = Math.max(1, Math.ceil(words / 150));
+    return `~${mins} నిమిషాల పఠనం (${mins} min read)`;
+  }
 
   function escHtml(str) {
     if (!str) return '';
@@ -46,8 +123,7 @@
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   async function load() {
@@ -56,12 +132,11 @@
       return;
     }
 
-    const navBack = document.getElementById('nav-back-story');
-    navBack.href = `/story.html?id=${storyId}`;
-    navBack.textContent = '← కథకు తిరిగి వెళ్ళు';
+    document.getElementById('nav-back-story').href = `/story.html?id=${storyId}`;
+    document.getElementById('nav-back-story').textContent = '← కథకు తిరిగి వెళ్ళు';
 
     // Gate chapter 3+ behind login
-    if (parseInt(chapterNum) >= 3 && !localStorage.getItem('user_token')) {
+    if (chapterNum >= 3 && !localStorage.getItem('user_token')) {
       document.getElementById('content').innerHTML = `
         <div style="text-align:center;padding:3rem 1rem;max-width:480px;margin:0 auto;">
           <div style="font-size:3rem;margin-bottom:1rem;">📖</div>
@@ -90,6 +165,12 @@
       const chTitle = chapter.title || `అధ్యాయం ${chapter.chapter_number}`;
       document.title = `${chTitle} - ${story.title} - రేవతి రమతి కథలు`;
 
+      // Auto-bookmark
+      localStorage.setItem(BOOKMARK_KEY, chapterNum);
+      const bookmarkBtn = document.getElementById('bookmark-btn');
+      bookmarkBtn.classList.add('active');
+      bookmarkBtn.title = 'Reading progress saved';
+
       const prevHtml = prev !== null
         ? `<a class="btn-nav" href="/chapter.html?story=${storyId}&ch=${prev}">&#8592; అ. ${prev}</a>`
         : `<span class="btn-nav-disabled">&#8592; మొదటి అధ్యాయం</span>`;
@@ -110,7 +191,11 @@
         <div class="reading-header">
           <div class="story-name">${escHtml(story.title)}</div>
           <h1>${escHtml(chTitle)}</h1>
-          <div class="chapter-info">అధ్యాయం ${chapter.chapter_number} · ${formatDate(chapter.created_at)}</div>
+          <div class="chapter-info">
+            అధ్యాయం ${chapter.chapter_number}
+            · ${formatDate(chapter.created_at)}
+            · <span class="reading-time">${readingTime(chapter.content)}</span>
+          </div>
         </div>
 
         <div class="chapter-content">${escHtml(chapter.content)}</div>
@@ -122,6 +207,9 @@
           </a>
           ${nextHtml}
         </div>`;
+
+      document.getElementById('reader-toolbar').style.display = 'flex';
+
     } catch (e) {
       document.getElementById('content').innerHTML =
         '<div class="empty-state"><p>Chapter not found. <a href="/">Back to home</a></p></div>';
@@ -131,17 +219,12 @@
   load();
 
   // Disable copy/paste
-</script>
-<script src="/js/user-auth.js"></script>
-<script>
-  // Disable copy/paste
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && ['c','a','u','s'].includes(e.key.toLowerCase())) {
-      e.preventDefault();
-    }
+    if ((e.ctrlKey || e.metaKey) && ['c','a','u','s'].includes(e.key.toLowerCase())) e.preventDefault();
   });
   document.addEventListener('copy', e => e.preventDefault());
 </script>
+<script src="/js/user-auth.js"></script>
 </body>
 </html>

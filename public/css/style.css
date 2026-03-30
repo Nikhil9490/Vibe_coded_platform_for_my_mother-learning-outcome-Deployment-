@@ -437,6 +437,121 @@ footer {
 .breadcrumb a:hover { text-decoration: underline; }
 .breadcrumb .sep { color: var(--border); }
 
+/* ---- BOOKMARK RESUME ---- */
+.bookmark-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.2rem;
+  padding: 0.6rem 1.2rem;
+  background: rgba(201,146,10,0.12);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.bookmark-resume:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---- READING PROGRESS BAR ---- */
+#reading-progress {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
+
+/* ---- READER TOOLBAR ---- */
+.reader-toolbar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0.45rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toolbar-btn {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  line-height: 1.2;
+}
+.toolbar-btn:last-child { border-right: none; }
+.toolbar-btn:hover { background: var(--bg); color: var(--primary); }
+.toolbar-btn.active { background: var(--primary); color: #fff; }
+
+.toolbar-icon-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1rem;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+.toolbar-icon-btn:hover { border-color: var(--primary); color: var(--primary); }
+.toolbar-icon-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(201,146,10,0.1); }
+
+/* ---- FONT SIZES ---- */
+body.font-sm .chapter-content { font-size: 0.95rem; line-height: 2.0; }
+body.font-md .chapter-content { font-size: 1.15rem; line-height: 2.2; }
+body.font-lg .chapter-content { font-size: 1.38rem; line-height: 2.5; }
+
+/* ---- READING TIME ---- */
+.reading-time { font-style: italic; opacity: 0.8; }
+
+/* ---- DARK THEME ---- */
+[data-theme="dark"] {
+  --bg: #160E0A;
+  --bg-card: #1F1410;
+  --border: #3A2518;
+  --text: #E8D0B0;
+  --text-muted: #9A7858;
+  --shadow: 0 2px 12px rgba(0,0,0,0.5);
+  --shadow-hover: 0 6px 24px rgba(0,0,0,0.6);
+}
+[data-theme="dark"] body::before { background: rgba(10, 5, 3, 0.88); }
+[data-theme="dark"] header {
+  background: linear-gradient(135deg, #2A0808 0%, #3D1010 50%, #2A0808 100%);
+}
+[data-theme="dark"] .chapter-content {
+  background: rgba(31, 20, 16, 0.95);
+  border-color: var(--border);
+}
+[data-theme="dark"] .story-card,
+[data-theme="dark"] .story-header,
+[data-theme="dark"] .chapter-item a { background: var(--bg-card); }
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 600px) {
   .chapter-content { padding: 1.5rem; font-size: 1.05rem; }
@@ -444,4 +559,6 @@ footer {
   .chapter-nav { flex-direction: column; }
   .chapter-nav a, .chapter-nav span { width: 100%; justify-content: center; }
   .chapter-date { display: none; }
+  .reader-toolbar { gap: 0.4rem; padding: 0.4rem 0.75rem; }
+  .reader-toolbar > span { display: none; }
 }
