@@ -200,6 +200,20 @@
 
         <div class="chapter-content">${escHtml(chapter.content)}</div>
 
+        <div class="engagement-bar">
+          <button class="like-btn" id="like-btn" onclick="toggleLike()">
+            <span id="like-icon">🤍</span>
+            <span id="like-count">0</span>
+          </button>
+          <span class="engagement-hint" id="like-hint"></span>
+        </div>
+
+        <div class="comments-section">
+          <h3 class="comments-title">వ్యాఖ్యలు · Comments <span id="comment-count" class="comment-count-badge"></span></h3>
+          <div id="comment-form-area"></div>
+          <div id="comments-list"></div>
+        </div>
+
         <div class="chapter-nav">
           ${prevHtml}
           <a href="/story.html?id=${storyId}" style="color:var(--text-muted);text-decoration:none;font-size:0.85rem;">
@@ -209,6 +223,7 @@
         </div>`;
 
       document.getElementById('reader-toolbar').style.display = 'flex';
+      loadEngagement(chapter.id);
 
     } catch (e) {
       document.getElementById('content').innerHTML =
@@ -217,6 +232,126 @@
   }
 
   load();
+
+  // ---- ENGAGEMENT ----
+  let chapterId = null;
+
+  async function loadEngagement(chapId) {
+    chapterId = chapId;
+    const token = localStorage.getItem('user_token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+    // Likes
+    const likesRes = await fetch(`/api/engage/chapters/${chapId}/likes`, { headers });
+    const likes = await likesRes.json();
+    setLikeUI(likes.count, likes.liked);
+
+    // Like hint
+    const hint = document.getElementById('like-hint');
+    if (hint) hint.textContent = token ? '' : 'లాగిన్ చేసి ❤️ నొక్కండి';
+
+    // Comments
+    await loadComments(chapId);
+
+    // Comment form
+    const formArea = document.getElementById('comment-form-area');
+    if (formArea) {
+      if (token) {
+        formArea.innerHTML = `
+          <div class="comment-form">
+            <textarea id="comment-input" class="comment-input" rows="3"
+              placeholder="మీ అభిప్రాయం రాయండి... (Write your thoughts)"></textarea>
+            <button class="comment-submit" onclick="postComment()">పంపు (Post)</button>
+          </div>`;
+      } else {
+        formArea.innerHTML = `<p class="comment-login-prompt">
+          వ్యాఖ్య రాయాలంటే <a href="/login.html?next=${encodeURIComponent(window.location.href)}">లాగిన్</a> చేయండి.
+        </p>`;
+      }
+    }
+  }
+
+  async function loadComments(chapId) {
+    const res = await fetch(`/api/engage/chapters/${chapId}/comments`);
+    const comments = await res.json();
+    const token = localStorage.getItem('user_token');
+    let userId = null;
+    if (token) {
+      try { userId = JSON.parse(atob(token.split('.')[1])).id; } catch {}
+    }
+
+    const badge = document.getElementById('comment-count');
+    if (badge) badge.textContent = comments.length || '';
+
+    const list = document.getElementById('comments-list');
+    if (!list) return;
+    if (!comments.length) {
+      list.innerHTML = '<p class="no-comments">మొదటి వ్యాఖ్య మీరే రాయండి! Be the first to comment.</p>';
+      return;
+    }
+    list.innerHTML = comments.map(c => `
+      <div class="comment" id="comment-${c.id}">
+        <div class="comment-header">
+          <span class="comment-author">${escHtml(c.user_name)}</span>
+          <span class="comment-date">${timeAgo(c.created_at)}</span>
+          ${userId === c.user_id ? `<button class="comment-delete" onclick="deleteComment(${c.id})">✕</button>` : ''}
+        </div>
+        <div class="comment-body">${escHtml(c.content)}</div>
+      </div>`).join('');
+  }
+
+  function setLikeUI(count, liked) {
+    const icon = document.getElementById('like-icon');
+    const countEl = document.getElementById('like-count');
+    const btn = document.getElementById('like-btn');
+    if (icon) icon.textContent = liked ? '❤️' : '🤍';
+    if (countEl) countEl.textContent = count;
+    if (btn) btn.classList.toggle('liked', liked);
+  }
+
+  async function toggleLike() {
+    const token = localStorage.getItem('user_token');
+    if (!token) { window.location.href = `/login.html?next=${encodeURIComponent(window.location.href)}`; return; }
+    const res = await fetch(`/api/engage/chapters/${chapterId}/like`, {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (res.ok) setLikeUI(data.count, data.liked);
+  }
+
+  async function postComment() {
+    const input = document.getElementById('comment-input');
+    const content = input?.value?.trim();
+    if (!content) return;
+    const token = localStorage.getItem('user_token');
+    const res = await fetch(`/api/engage/chapters/${chapterId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ content })
+    });
+    if (res.ok) {
+      input.value = '';
+      await loadComments(chapterId);
+    }
+  }
+
+  async function deleteComment(id) {
+    const token = localStorage.getItem('user_token');
+    const res = await fetch(`/api/engage/comments/${id}`, {
+      method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) await loadComments(chapterId);
+  }
+
+  function timeAgo(dateStr) {
+    const diff = Date.now() - new Date(dateStr + 'Z').getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'ఇప్పుడే';
+    if (m < 60) return `${m} నిమిషాల క్రితం`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} గంటల క్రితం`;
+    return Math.floor(h / 24) + ' రోజుల క్రితం';
+  }
 
   // Disable copy/paste
   document.addEventListener('contextmenu', e => e.preventDefault());

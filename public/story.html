@@ -74,15 +74,18 @@
             ${chapters.length} అధ్యాయ${chapters.length === 1 ? 'ము' : 'లు'}
           </h3>
           <ul class="chapters-list">
-            ${chapters.map(ch => `
+            ${chapters.map(ch => {
+              const isNew = (Date.now() - new Date(ch.created_at + 'Z').getTime()) < 48 * 3600 * 1000;
+              return `
               <li class="chapter-item">
                 <a href="/chapter.html?story=${storyId}&ch=${ch.chapter_number}">
                   <span class="chapter-num">అ. ${ch.chapter_number}</span>
                   <span class="chapter-title">${ch.title ? escHtml(ch.title) : `అధ్యాయం ${ch.chapter_number}`}</span>
+                  ${isNew ? '<span class="new-badge">New</span>' : ''}
                   <span class="chapter-date">${formatDate(ch.created_at)}</span>
                   <span style="color:var(--text-muted);margin-left:0.5rem;">&#8250;</span>
                 </a>
-              </li>`).join('')}
+              </li>`;}).join('')}
           </ul>`;
       }
 
