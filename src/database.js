@@ -62,6 +62,16 @@ async function init() {
   `);
 
   _db.run(`
+    CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  _db.run(`
     CREATE TABLE IF NOT EXISTS likes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       chapter_id INTEGER NOT NULL,

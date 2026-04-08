@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>సభ్యుల చాట్ - రేవతి రమతి కథలు</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .chat-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 200px);
+      min-height: 480px;
+    }
+    .chat-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    :root {
+      --chat-mine: #2D7D6F;
+      --chat-mine-dark: #235F54;
+      --chat-theirs: #EDE8DF;
+      --chat-theirs-dark: #2A1E14;
+      --chat-author: #2D7D6F;
+    }
+    .chat-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--primary);
+    }
+    .online-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      margin-right: 0.4rem;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      background: #9B1B4B;
+      border: 1px solid var(--border);
+      border-radius: 12px 12px 0 0;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      scroll-behavior: smooth;
+    }
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      max-width: 72%;
+      gap: 0.15rem;
+    }
+    .chat-message.mine { align-self: flex-end; align-items: flex-end; }
+    .chat-message.theirs { align-self: flex-start; align-items: flex-start; }
+    .msg-author {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--chat-author);
+      padding: 0 0.4rem;
+    }
+    .msg-bubble {
+      padding: 0.55rem 0.9rem;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      word-break: break-word;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .mine .msg-bubble {
+      background: var(--chat-mine);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .theirs .msg-bubble {
+      background: var(--chat-theirs);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+    [data-theme="dark"] .theirs .msg-bubble { background: var(--chat-theirs-dark); }
+    [data-theme="dark"] { --chat-mine: #235F54; }
+    .msg-meta {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      padding: 0 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .msg-delete {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 0.7rem; padding: 0;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .chat-message:hover .msg-delete { opacity: 1; }
+    .msg-delete:hover { color: #c00; }
+    .chat-input-bar {
+      display: flex;
+      gap: 0.5rem;
+      background: #821540;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 0.75rem;
+    }
+    .chat-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 0.55rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--bg);
+      color: var(--text);
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    .chat-input:focus { border-color: var(--primary); }
+    .chat-send {
+      background: var(--chat-mine);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 42px; height: 42px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chat-send:hover { background: var(--chat-mine-dark); }
+    .chat-send:disabled { opacity: 0.5; cursor: default; }
+    .chat-divider {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin: 0.3rem 0;
+      position: relative;
+    }
+    .chat-divider::before, .chat-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 30%;
+      height: 1px;
+      background: var(--border);
+    }
+    .chat-divider::before { left: 0; }
+    .chat-divider::after { right: 0; }
+    .login-wall {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3rem;
+    }
+    .char-count {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      align-self: center;
+      white-space: nowrap;
+    }
+    .char-count.warn { color: #e0365a; }
+    @media (max-width: 600px) {
+      .chat-wrap { height: calc(100vh - 160px); padding: 0.75rem; }
+      .chat-message { max-width: 85%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">
+      రేవతి రమతి కథలు
+      <span class="site-title-telugu">Revati Ramati's Telugu Stories</span>
+    </div>
+    <div class="header-ornament"></div>
+  </div>
+  <nav>
+    <a href="/">&#8592; కథలు (Stories)</a>
+    <span id="user-nav" style="float:right;"></span>
+  </nav>
+</header>
+
+<div class="chat-wrap" id="chat-wrap">
+  <div class="chat-header-bar">
+    <div class="chat-title">
+      <span class="online-dot"></span>సభ్యుల చాట్ · Members Chat
+    </div>
+    <span id="member-note" style="font-size:0.8rem;color:var(--text-muted);"></span>
+  </div>
+  <div id="chat-area"></div>
+</div>
+
+<script>
+  const token = localStorage.getItem('user_token');
+  let myUserId = null;
+  let lastId = 0;
+  let polling = null;
+  let atBottom = true;
+
+  if (token) {
+    try { myUserId = JSON.parse(atob(token.split('.')[1])).id; } catch {}
+  }
+
+  function escHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function timeStr(dateStr) {
+    const d = new Date(dateStr + 'Z');
+    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function dayLabel(dateStr) {
+    const d = new Date(dateStr + 'Z');
+    const today = new Date();
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return 'Today';
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  }
+
+  function renderMessages(messages) {
+    const box = document.getElementById('chat-box');
+    if (!box) return;
+    let lastDay = '';
+    messages.forEach(m => {
+      const day = dayLabel(m.created_at);
+      if (day !== lastDay) {
+        lastDay = day;
+        const div = document.createElement('div');
+        div.className = 'chat-divider';
+        div.textContent = day;
+        box.appendChild(div);
+      }
+      box.appendChild(buildBubble(m));
+    });
+    if (atBottom) box.scrollTop = box.scrollHeight;
+  }
+
+  function buildBubble(m) {
+    const mine = m.user_id === myUserId;
+    const wrap = document.createElement('div');
+    wrap.className = `chat-message ${mine ? 'mine' : 'theirs'}`;
+    wrap.id = `msg-${m.id}`;
+    wrap.innerHTML = `
+      ${!mine ? `<div class="msg-author">${escHtml(m.user_name)}</div>` : ''}
+      <div class="msg-bubble">${escHtml(m.content)}</div>
+      <div class="msg-meta">
+        ${timeStr(m.created_at)}
+        ${mine ? `<button class="msg-delete" onclick="deleteMsg(${m.id})" title="Delete">✕</button>` : ''}
+      </div>`;
+    return wrap;
+  }
+
+  async function loadInitial() {
+    const res = await fetch('/api/chat/messages', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const messages = await res.json();
+    if (messages.length) lastId = messages[messages.length - 1].id;
+    renderMessages(messages);
+  }
+
+  async function poll() {
+    try {
+      const res = await fetch(`/api/chat/messages?after=${lastId}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+      const messages = await res.json();
+      if (messages.length) {
+        lastId = messages[messages.length - 1].id;
+        const box = document.getElementById('chat-box');
+        atBottom = box && (box.scrollHeight - box.scrollTop - box.clientHeight < 60);
+        renderMessages(messages);
+      }
+    } catch {}
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('msg-input');
+    const content = input?.value?.trim();
+    if (!content) return;
+    const btn = document.getElementById('send-btn');
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ content })
+      });
+      if (res.ok) {
+        const m = await res.json();
+        lastId = m.id;
+        const box = document.getElementById('chat-box');
+        atBottom = true;
+        if (box) box.appendChild(buildBubble(m));
+        input.value = '';
+        updateCharCount();
+        if (box) box.scrollTop = box.scrollHeight;
+      }
+    } finally { btn.disabled = false; input.focus(); }
+  }
+
+  async function deleteMsg(id) {
+    const res = await fetch(`/api/chat/messages/${id}`, {
+      method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.ok) { const el = document.getElementById(`msg-${id}`); el?.remove(); }
+  }
+
+  function updateCharCount() {
+    const input = document.getElementById('msg-input');
+    const counter = document.getElementById('char-count');
+    if (!input || !counter) return;
+    const len = input.value.length;
+    counter.textContent = `${len}/500`;
+    counter.className = 'char-count' + (len > 450 ? ' warn' : '');
+  }
+
+  function init() {
+    const area = document.getElementById('chat-area');
+    if (!token || !myUserId) {
+      area.innerHTML = `
+        <div class="login-wall">
+          <div style="font-size:3rem;">💬</div>
+          <h2 style="color:var(--primary);">సభ్యులకు మాత్రమే · Members Only</h2>
+          <p style="color:var(--text-muted);">Chat is available to registered members. Join to discuss the stories!</p>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
+            <a href="/login.html?next=/chat.html"
+               style="background:var(--primary);color:#fff;padding:0.7rem 1.8rem;border-radius:8px;text-decoration:none;font-weight:600;">
+              లాగిన్ (Login)
+            </a>
+            <a href="/register.html?next=/chat.html"
+               style="border:2px solid var(--primary);color:var(--primary);padding:0.7rem 1.8rem;border-radius:8px;text-decoration:none;font-weight:600;">
+              నమోదు (Register)
+            </a>
+          </div>
+        </div>`;
+      return;
+    }
+
+    area.innerHTML = `
+      <div class="chat-box" id="chat-box"></div>
+      <div class="chat-input-bar">
+        <textarea id="msg-input" class="chat-input" rows="1" maxlength="500"
+          placeholder="సందేశం రాయండి... (Type a message)"
+          oninput="updateCharCount()"></textarea>
+        <span id="char-count" class="char-count">0/500</span>
+        <button class="chat-send" id="send-btn" title="Send">➤</button>
+      </div>`;
+
+    const box = document.getElementById('chat-box');
+    box.addEventListener('scroll', () => {
+      atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+    });
+
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('msg-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    const note = document.getElementById('member-note');
+    try {
+      const name = JSON.parse(atob(token.split('.')[1])).name;
+      if (note) note.textContent = `చాటింగ్ చేస్తున్నారు: ${name}`;
+    } catch {}
+
+    loadInitial();
+    polling = setInterval(poll, 4000);
+  }
+
+  init();
+</script>
+<script src="/js/user-auth.js"></script>
+</body>
+</html>

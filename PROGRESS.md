@@ -60,6 +60,17 @@ A Telugu story publishing platform built for Revati Ramati (pen name), to post a
 - [x] **Delete own comment** — ✕ button visible on your own comments
 - [x] **"New" badge** — orange badge on chapters posted within the last 48 hours
 
+### Group Chat
+- [x] `/chat.html` — members-only group chat room
+- [x] Polls every 4 seconds for new messages (no WebSocket needed at this scale)
+- [x] WhatsApp-style bubble layout — your messages right (teal), others left (cream)
+- [x] Enter to send, Shift+Enter for new line, 500 char limit with live counter
+- [x] Hover to reveal ✕ delete button on your own messages
+- [x] Day dividers (Today / Yesterday / date)
+- [x] Deep pink chat box background, teal send bubbles
+- [x] Login wall for non-members with bilingual prompt
+- [x] 💬 Chat link added to nav on all public pages
+
 ### Auto-Publish Scheduler
 - [x] `scripts/schedule-publish.js` — schedule a `.txt` file to publish at a given ET time
 - [x] Calls the running server's API (not the DB directly) so changes appear instantly
@@ -93,6 +104,9 @@ A Telugu story publishing platform built for Revati Ramati (pen name), to post a
 | POST | `/api/engage/chapters/:id/like` | Toggle like |
 | POST | `/api/engage/chapters/:id/comments` | Post a comment |
 | DELETE | `/api/engage/comments/:id` | Delete own comment |
+| GET | `/api/chat/messages?after=<id>` | Fetch chat messages (initial or poll) |
+| POST | `/api/chat/messages` | Send a chat message |
+| DELETE | `/api/chat/messages/:id` | Delete own chat message |
 
 ### Admin Auth Required
 | Method | Route | Description |
@@ -129,12 +143,14 @@ rohini_website/
 │       ├── users.js           # User register/login/me
 │       ├── stories.js         # Story CRUD
 │       ├── chapters.js        # Chapter CRUD
-│       └── engagement.js      # Likes + comments
+│       ├── engagement.js      # Likes + comments
+│       └── chat.js            # Group chat messages
 │
 ├── public/
 │   ├── index.html             # Home — story list
 │   ├── story.html             # Story — chapter list
 │   ├── chapter.html           # Reading view
+│   ├── chat.html              # Members group chat
 │   ├── login.html             # User login
 │   ├── register.html          # User registration
 │   ├── image.png              # Background (served statically)
@@ -166,20 +182,26 @@ rohini_website/
 
 ## Pending / Next Up
 
-### Author Tools
-- [ ] Draft mode — save chapter without publishing, publish when ready
-- [ ] Rich text editor in admin (bold, italic, paragraph breaks)
-- [ ] Chapter view count tracker
+### High Impact
+- [ ] **OG meta tags** — WhatsApp/social link preview card with story title + description
+- [ ] **Draft mode** — admin saves chapter without publishing; publish button when ready
+- [ ] **View counts** — track reads per chapter, display on story page
+- [ ] **Search** — keyword search across stories and chapters
 
-### Discovery
-- [ ] OG meta tags — WhatsApp/social link preview cards
-- [ ] Search across stories and chapters
-- [ ] Floating table of contents on chapter page
+### Polish
+- [ ] **Story descriptions** — most stories currently have no description; add cover blurb
+- [ ] **Table of contents** — floating sidebar on chapter page, jump to any chapter
+- [ ] **Scroll to top button** — appears after scrolling down on long chapters
+- [ ] **Rich text editor** in admin — bold, italic, paragraph support instead of plain textarea
 
-### Platform
-- [ ] Email or browser notifications when a new chapter drops
-- [ ] AWS deployment (EC2 or Lightsail) — get it live on the internet
-- [ ] Custom domain (e.g. revatiramati.com)
+### Community
+- [ ] **User profiles** — click a commenter's name to see their liked chapters and activity
+- [ ] **Story ratings** — ⭐ 1–5 stars per story, show average on story card
+
+### Production
+- [ ] **AWS deployment** — EC2 t3.micro or Lightsail, get it live on the internet
+- [ ] **Custom domain** — e.g. revatiramati.com
+- [ ] **Auto-backup** — daily cron job to copy `stories.db` to S3
 
 ---
 
@@ -205,4 +227,4 @@ node scripts/schedule-publish.js data/maharshi_ch5.txt "మహర్షి" 5 22
 
 Repository: [Nikhil9490/Vibe_coded_platform_for_my_mother-learning-outcome-Deployment-](https://github.com/Nikhil9490/Vibe_coded_platform_for_my_mother-learning-outcome-Deployment-)
 
-Last pushed: engagement features (likes, comments, New badge)
+Last pushed: engagement features (likes, comments, New badge), group chat

@@ -17,6 +17,7 @@ async function start() {
   app.use('/api/stories', require('./src/routes/stories')(db));
   app.use('/api/chapters', require('./src/routes/chapters')(db));
   app.use('/api/engage', require('./src/routes/engagement')(db));
+  app.use('/api/chat', require('./src/routes/chat')(db));
 
   app.get('*', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
