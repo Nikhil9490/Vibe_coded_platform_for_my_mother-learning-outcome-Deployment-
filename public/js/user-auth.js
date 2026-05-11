@@ -3,12 +3,13 @@
   const nav = document.getElementById('user-nav');
   if (!nav) return;
 
-  const token = localStorage.getItem('user_token');
-  const name  = localStorage.getItem('user_name');
+  const userToken  = localStorage.getItem('user_token');
+  const userName   = localStorage.getItem('user_name');
+  const adminToken = localStorage.getItem('admin_token');
 
-  if (token && name) {
+  if (userToken && userName) {
     nav.innerHTML = `
-      <span class="user-greeting">👤 ${escHtml(name)}</span>
+      <span class="user-greeting">👤 ${escHtml(userName)}</span>
       <a href="#" id="logout-btn">లాగ్ అవుట్ (Logout)</a>
     `;
     document.getElementById('logout-btn').addEventListener('click', e => {
@@ -17,6 +18,11 @@
       localStorage.removeItem('user_name');
       window.location.href = '/';
     });
+  } else if (adminToken) {
+    nav.innerHTML = `
+      <span class="user-greeting">✍️ రోహిణి (Admin)</span>
+      <a href="/admin/dashboard.html">Dashboard</a>
+    `;
   } else {
     nav.innerHTML = `<a href="/">లాగిన్ (Login)</a>`;
   }
