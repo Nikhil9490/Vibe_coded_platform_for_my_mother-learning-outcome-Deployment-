@@ -19,7 +19,7 @@ module.exports = function (db) {
     const token = jwt.sign(
       { id: admin.id, username: admin.username },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '365d' }
     );
 
     res.json({ token });

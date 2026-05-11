@@ -22,7 +22,7 @@ module.exports = function (db) {
     const result = db.prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)').run(name, email, password_hash);
     const user = db.prepare('SELECT id, name, email, created_at FROM users WHERE id = ?').get(result.lastInsertRowid);
 
-    const token = jwt.sign({ id: user.id, name: user.name, email: user.email, role: 'user' }, SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, name: user.name, email: user.email, role: 'user' }, SECRET, { expiresIn: '30d' });
     res.json({ token, user });
   });
 
@@ -40,7 +40,7 @@ module.exports = function (db) {
     if (!valid)
       return res.status(401).json({ error: 'Invalid email or password.' });
 
-    const token = jwt.sign({ id: user.id, name: user.name, email: user.email, role: 'user' }, SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, name: user.name, email: user.email, role: 'user' }, SECRET, { expiresIn: '30d' });
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, created_at: user.created_at } });
   });
 
