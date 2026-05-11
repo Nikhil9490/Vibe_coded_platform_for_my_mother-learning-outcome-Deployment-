@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>సభ్యుల చాట్ - రేవతి రమతి కథలు</title>
+  <meta name="theme-color" content="#8B1A1A">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="/css/style.css">
   <style>
     .chat-wrap {
@@ -346,26 +349,12 @@
   }
 
   function init() {
-    const area = document.getElementById('chat-area');
     if (!token || !myUserId) {
-      area.innerHTML = `
-        <div class="login-wall">
-          <div style="font-size:3rem;">💬</div>
-          <h2 style="color:var(--primary);">సభ్యులకు మాత్రమే · Members Only</h2>
-          <p style="color:var(--text-muted);">Chat is available to registered members. Join to discuss the stories!</p>
-          <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
-            <a href="/login.html?next=/chat.html"
-               style="background:var(--primary);color:#fff;padding:0.7rem 1.8rem;border-radius:8px;text-decoration:none;font-weight:600;">
-              లాగిన్ (Login)
-            </a>
-            <a href="/register.html?next=/chat.html"
-               style="border:2px solid var(--primary);color:var(--primary);padding:0.7rem 1.8rem;border-radius:8px;text-decoration:none;font-weight:600;">
-              నమోదు (Register)
-            </a>
-          </div>
-        </div>`;
+      window.location.replace('/?next=/chat.html');
       return;
     }
+
+    const area = document.getElementById('chat-area');
 
     area.innerHTML = `
       <div class="chat-box" id="chat-box"></div>

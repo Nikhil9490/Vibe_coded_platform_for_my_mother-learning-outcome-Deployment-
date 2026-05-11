@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>లాగిన్ - రేవతి రమతి కథలు</title>
+  <meta name="theme-color" content="#8B1A1A">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="/css/style.css">
   <style>
     .auth-card {
@@ -110,7 +113,7 @@
       localStorage.setItem('user_token', data.token);
       localStorage.setItem('user_name', data.user.name);
       const next = new URLSearchParams(window.location.search).get('next');
-      window.location.href = next || '/';
+      window.location.href = next || '/stories.html';
     } catch {
       errEl.textContent = 'Something went wrong. Please try again.';
       errEl.style.display = 'block';

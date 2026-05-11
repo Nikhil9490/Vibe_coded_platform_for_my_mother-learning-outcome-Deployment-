@@ -1,4 +1,4 @@
-// Shared user auth header logic — included on all public pages
+// Shared user auth header — included on all public pages
 (function () {
   const nav = document.getElementById('user-nav');
   if (!nav) return;
@@ -15,16 +15,14 @@
       e.preventDefault();
       localStorage.removeItem('user_token');
       localStorage.removeItem('user_name');
-      window.location.reload();
+      window.location.href = '/';
     });
   } else {
-    nav.innerHTML = `
-      <a href="/login.html">లాగిన్ (Login)</a>
-      <a href="/register.html" class="btn-register">నమోదు (Register)</a>
-    `;
+    nav.innerHTML = `<a href="/">లాగిన్ (Login)</a>`;
   }
 
   function escHtml(str) {
+    if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 })();

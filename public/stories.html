@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>రేవతి రమతి కథలు - Telugu Stories</title>
+  <meta name="theme-color" content="#8B1A1A">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title">
+      రేవతి రమతి కథలు
+      <span class="site-title-telugu">Revati Ramati's Telugu Stories</span>
+    </div>
+    <p class="site-subtitle">తెలుగు సాహిత్యం · Telugu Literature</p>
+    <div class="header-ornament"></div>
+  </div>
+  <nav>
+    <a href="/stories.html">కథలు (Stories)</a>
+    <a href="/chat.html">💬 చాట్ (Chat)</a>
+    <span id="user-nav" style="float:right;"></span>
+  </nav>
+</header>
+
+<div class="container">
+  <h2 class="page-title">అన్ని కథలు</h2>
+  <p class="page-subtitle" id="story-count">Loading stories...</p>
+
+  <div id="stories-container">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>రేవతి రమతి కథలు &copy; <span id="year"></span> · Written with love</p>
+</footer>
+
+<script>
+  // Auth guard — accept either user or admin token
+  if (!localStorage.getItem('user_token') && !localStorage.getItem('admin_token')) {
+    window.location.replace('/');
+  }
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function loadStories() {
+    try {
+      const res = await fetch('/api/stories');
+      const stories = await res.json();
+      const container = document.getElementById('stories-container');
+      const countEl   = document.getElementById('story-count');
+
+      if (!stories.length) {
+        countEl.textContent = 'No stories yet.';
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📖</div>
+            <h3>కథలు త్వరలో వస్తాయి</h3>
+            <p>Stories coming soon...</p>
+          </div>`;
+        return;
+      }
+
+      countEl.textContent = `${stories.length} ${stories.length === 1 ? 'story' : 'stories'} · Updated regularly`;
+
+      container.innerHTML = `<div class="stories-grid">${stories.map(s => `
+        <a class="story-card" href="/story.html?id=${s.id}">
+          <div class="story-card-title">${escHtml(s.title)}</div>
+          ${s.description ? `<div class="story-card-desc">${escHtml(s.description)}</div>` : ''}
+          <div class="story-card-meta">
+            <span class="meta-badge">${s.chapter_count || 0} అధ్యాయాలు</span>
+            <span>${s.last_updated ? formatDate(s.last_updated) : formatDate(s.created_at)}</span>
+          </div>
+        </a>`).join('')}
+      </div>`;
+    } catch {
+      document.getElementById('stories-container').innerHTML =
+        '<div class="empty-state"><p>Could not load stories. Please try again.</p></div>';
+    }
+  }
+
+  loadStories();
+</script>
+<script src="/js/user-auth.js"></script>
+</body>
+</html>

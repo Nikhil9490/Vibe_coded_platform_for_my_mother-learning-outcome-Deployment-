@@ -4,8 +4,12 @@
 body.admin-body {
   font-family: 'Inter', 'Segoe UI', sans-serif;
   background: #F5F0EA;
+  background-image: none;
   line-height: 1.6;
 }
+
+/* Remove the cream overlay that style.css applies — admin has its own backgrounds */
+body.admin-body::before { display: none; }
 
 /* ---- ADMIN LAYOUT ---- */
 .admin-layout {

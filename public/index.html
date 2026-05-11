@@ -4,7 +4,118 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>రేవతి రమతి కథలు - Telugu Stories</title>
+  <meta name="theme-color" content="#8B1A1A">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .login-page-wrap {
+      min-height: calc(100vh - 220px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .login-selector { width: 100%; max-width: 460px; }
+
+    .role-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .role-btn {
+      padding: 1.4rem 1rem;
+      border: 2px solid rgba(139,26,26,0.4);
+      border-radius: 12px;
+      background: rgba(60, 20, 10, 0.72);
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+      transition: all 0.2s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      backdrop-filter: blur(4px);
+    }
+    .role-btn .role-icon { font-size: 2.2rem; }
+    .role-btn .role-label { font-weight: 700; color: #F5D78E; font-size: 1rem; }
+    .role-btn .role-sub  { font-size: 0.75rem; color: #C4A882; }
+    .role-btn:hover, .role-btn.active {
+      border-color: var(--primary);
+      background: rgba(100, 20, 10, 0.88);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    }
+
+    .login-form-card {
+      background: rgba(60, 20, 10, 0.72);
+      border: 2px solid rgba(139,26,26,0.4);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+    }
+    .login-form-card h2 { color: #F5D78E; margin-bottom: 0.25rem; font-size: 1.4rem; }
+    .login-form-card p.sub { color: #C4A882; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .login-form-card label { color: #E8D0B0; }
+    .form-footer { color: #C4A882; }
+    .form-footer a { color: #F5D78E; }
+
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+    .form-group input {
+      width: 100%; padding: 0.78rem 1rem;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: 1rem;
+      background: #fff; color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { outline: none; border-color: var(--primary); }
+
+    .btn-submit {
+      width: 100%; padding: 0.9rem;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 1.05rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.2s;
+      margin-top: 0.4rem;
+    }
+    .btn-submit:hover { background: var(--primary-light); }
+    .btn-submit:disabled { opacity: 0.6; cursor: default; }
+
+    .error-msg {
+      background: #fef2f2; color: #b91c1c;
+      border: 1px solid #fca5a5; border-radius: 8px;
+      padding: 0.7rem 1rem; margin-bottom: 1rem;
+      font-size: 0.9rem; display: none;
+    }
+    .form-footer { text-align: center; margin-top: 1.2rem; font-size: 0.9rem; color: var(--text-muted); }
+    .form-footer a { color: var(--primary); font-weight: 600; }
+
+    .admin-card {
+      background: rgba(60, 20, 10, 0.72);
+      border: 2px solid rgba(139,26,26,0.4);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+    }
+    .admin-card h2 { color: #F5D78E; margin-bottom: 0.4rem; }
+    .admin-card p { color: #C4A882; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .admin-card a.btn-go {
+      display: inline-block;
+      padding: 0.85rem 2.5rem;
+      background: var(--primary); color: #fff;
+      border-radius: 8px; text-decoration: none;
+      font-weight: 600; font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .admin-card a.btn-go:hover { background: var(--primary-light); }
+  </style>
 </head>
 <body>
 
@@ -17,22 +128,60 @@
     <p class="site-subtitle">తెలుగు సాహిత్యం · Telugu Literature</p>
     <div class="header-ornament"></div>
   </div>
-  <nav>
-    <a href="/">కథలు (Stories)</a>
-    <a href="/chat.html">💬 చాట్ (Chat)</a>
-    <span id="user-nav" style="float:right;"></span>
-  </nav>
 </header>
 
-<div class="container">
-  <h2 class="page-title">అన్ని కథలు</h2>
-  <p class="page-subtitle" id="story-count">Loading stories...</p>
+<div class="login-page-wrap">
+  <div class="login-selector">
 
-  <div id="stories-container">
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading...</p>
+    <div class="role-buttons">
+      <button class="role-btn active" id="btn-user" onclick="selectRole('user')">
+        <span class="role-icon">📖</span>
+        <span class="role-label">వినియోగదారుడు</span>
+        <span class="role-sub">Reader / User</span>
+      </button>
+      <button class="role-btn" id="btn-admin" onclick="selectRole('admin')">
+        <span class="role-icon">✍️</span>
+        <span class="role-label">అడ్మిన్</span>
+        <span class="role-sub">Author / Admin</span>
+      </button>
     </div>
+
+    <!-- User login form -->
+    <div id="user-section">
+      <div class="login-form-card">
+        <h2>లాగిన్ చేయండి</h2>
+        <p class="sub">Sign in to read Telugu stories</p>
+
+        <div class="error-msg" id="user-error"></div>
+
+        <form id="user-login-form">
+          <div class="form-group">
+            <label>ఇమెయిల్ (Email)</label>
+            <input type="email" id="user-email" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label>పాస్వర్డ్ (Password)</label>
+            <input type="password" id="user-password" placeholder="Your password" required autocomplete="current-password" />
+          </div>
+          <button type="submit" class="btn-submit" id="login-btn">లాగిన్ (Login)</button>
+        </form>
+
+        <div class="form-footer">
+          అకౌంట్ లేదా? <a href="/register.html">నమోదు చేసుకోండి (Register)</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin section -->
+    <div id="admin-section" style="display:none;">
+      <div class="admin-card">
+        <div style="font-size:2.5rem;margin-bottom:0.8rem;">🔐</div>
+        <h2>Admin Panel</h2>
+        <p>Story management for Revati Ramati.<br>రేవతి రమతి కథలు నిర్వహణ.</p>
+        <a href="/admin/login.html" class="btn-go">Admin లాగిన్ చేయండి →</a>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -43,55 +192,58 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
   }
 
-  async function loadStories() {
-    try {
-      const res = await fetch('/api/stories');
-      const stories = await res.json();
-      const container = document.getElementById('stories-container');
-      const countEl = document.getElementById('story-count');
+  // Already logged in → go straight to stories
+  if (localStorage.getItem('user_token')) {
+    const next = new URLSearchParams(window.location.search).get('next');
+    window.location.replace(next || '/stories.html');
+  }
 
-      if (!stories.length) {
-        countEl.textContent = 'No stories yet.';
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="icon">📖</div>
-            <h3>కథలు త్వరలో వస్తాయి</h3>
-            <p>Stories coming soon...</p>
-          </div>`;
+  function selectRole(role) {
+    document.getElementById('btn-user').classList.toggle('active', role === 'user');
+    document.getElementById('btn-admin').classList.toggle('active', role === 'admin');
+    document.getElementById('user-section').style.display  = role === 'user'  ? 'block' : 'none';
+    document.getElementById('admin-section').style.display = role === 'admin' ? 'block' : 'none';
+  }
+
+  document.getElementById('user-login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const errEl = document.getElementById('user-error');
+    const btn   = document.getElementById('login-btn');
+    errEl.style.display = 'none';
+    btn.textContent = 'లాగిన్ అవుతున్నారు...';
+    btn.disabled = true;
+
+    const email    = document.getElementById('user-email').value.trim();
+    const password = document.getElementById('user-password').value;
+
+    try {
+      const res  = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error;
+        errEl.style.display = 'block';
         return;
       }
-
-      countEl.textContent = `${stories.length} ${stories.length === 1 ? 'story' : 'stories'} · Updated regularly`;
-
-      container.innerHTML = `<div class="stories-grid">${stories.map(s => `
-        <a class="story-card" href="/story.html?id=${s.id}">
-          <div class="story-card-title">${escHtml(s.title)}</div>
-          ${s.description ? `<div class="story-card-desc">${escHtml(s.description)}</div>` : ''}
-          <div class="story-card-meta">
-            <span class="meta-badge">${s.chapter_count || 0} అధ్యాయాలు</span>
-            <span>${s.last_updated ? formatDate(s.last_updated) : formatDate(s.created_at)}</span>
-          </div>
-        </a>`).join('')}
-      </div>`;
-    } catch (e) {
-      document.getElementById('stories-container').innerHTML =
-        '<div class="empty-state"><p>Could not load stories. Please try again.</p></div>';
+      localStorage.setItem('user_token', data.token);
+      localStorage.setItem('user_name', data.user.name);
+      const next = new URLSearchParams(window.location.search).get('next');
+      window.location.href = next || '/stories.html';
+    } catch {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.textContent = 'లాగిన్ (Login)';
+      btn.disabled = false;
     }
-  }
-
-  function escHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  loadStories();
+  });
 </script>
-<script src="/js/user-auth.js"></script>
 </body>
 </html>

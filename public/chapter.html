@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reading - రేవతి రమతి కథలు</title>
+  <meta name="theme-color" content="#8B1A1A">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -48,6 +51,11 @@
 </footer>
 
 <script>
+  // Auth guard — all chapters require login (user or admin)
+  if (!localStorage.getItem('user_token') && !localStorage.getItem('admin_token')) {
+    window.location.replace('/?next=' + encodeURIComponent(window.location.href));
+  }
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const params = new URLSearchParams(window.location.search);
@@ -135,28 +143,6 @@
 
     document.getElementById('nav-back-story').href = `/story.html?id=${storyId}`;
     document.getElementById('nav-back-story').textContent = '← కథకు తిరిగి వెళ్ళు';
-
-    // Gate chapter 3+ behind login
-    if (chapterNum >= 3 && !localStorage.getItem('user_token')) {
-      document.getElementById('content').innerHTML = `
-        <div style="text-align:center;padding:3rem 1rem;max-width:480px;margin:0 auto;">
-          <div style="font-size:3rem;margin-bottom:1rem;">📖</div>
-          <h2 style="color:var(--primary);margin-bottom:0.5rem;">కొనసాగించడానికి లాగిన్ చేయండి</h2>
-          <p style="color:var(--text-muted);margin-bottom:0.3rem;">3వ అధ్యాయం నుండి చదవడానికి అకౌంట్ అవసరం.</p>
-          <p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.9rem;">Please log in or create a free account to continue reading from Chapter 3.</p>
-          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-            <a href="/login.html?next=${encodeURIComponent(window.location.href)}"
-               style="background:var(--primary);color:#fff;padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;">
-              లాగిన్ (Login)
-            </a>
-            <a href="/register.html?next=${encodeURIComponent(window.location.href)}"
-               style="background:transparent;color:var(--primary);padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;border:2px solid var(--primary);">
-              నమోదు (Register)
-            </a>
-          </div>
-        </div>`;
-      return;
-    }
 
     try {
       const res = await fetch(`/api/stories/${storyId}/chapters/${chapterNum}`);
