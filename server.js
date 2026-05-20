@@ -19,6 +19,11 @@ app.get('/sw.js', (_req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.sendFile(path.join(__dirname, 'public', 'sw.js'));
 });
+// TWA domain verification for Play Store
+app.get('/.well-known/assetlinks.json', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.sendFile(path.join(__dirname, 'public', '.well-known', 'assetlinks.json'));
+});
 
 async function ensureAdmin() {
   const existing = db.prepare('SELECT id FROM admin LIMIT 1').get();
